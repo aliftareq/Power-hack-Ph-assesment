@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import LoadingSpinner from '../Shared/LoadingSpinner';
 
 const BillingPage = () => {
@@ -26,8 +27,47 @@ const BillingPage = () => {
         return <LoadingSpinner></LoadingSpinner>
     }
 
-    const handleBooking = () => {
-        console.log('clicked');
+    //handlers
+    const handleBooking = (e) => {
+        e.preventDefault()
+        const form = e.target
+        const Full_Name = form.name.value
+        const Phone = form.phone.value
+        const email = form.email.value
+        const paid_amount = form.amount.value
+
+        const bill = {
+            Full_Name,
+            Phone,
+            email,
+            paid_amount
+        }
+        console.log(bill);
+
+        //sending data to server
+        fetch(`http://localhost:5000/add-billing`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(bill)
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                if (data.acknowledged) {
+                    toast.success('Your Bill added Successfully')
+
+                }
+                else {
+                    toast.warn(data.message)
+                }
+                refetch()
+            })
+
+        //reseting form and closing modal
+        form.reset()
+
     }
 
     return (
@@ -88,16 +128,16 @@ const BillingPage = () => {
                                                 <span>{bill._id}</span>
                                             </td>
                                             <td className="px-2 py-2 text-left">
-                                                <span>Alif Hossen</span>
+                                                <span>{bill.Full_Name}</span>
                                             </td>
                                             <td className="px-2 py-2 text-left">
-                                                <span>aliftareq@gamil.com</span>
+                                                <span>{bill.email}</span>
                                             </td>
                                             <td className="px-2 py-2 text-left">
-                                                <span>+8801834920647</span>
+                                                <span>{bill.Phone}</span>
                                             </td>
                                             <td className="px-2 py-2 text-left">
-                                                <span>17770</span>
+                                                <span>{bill.paid_amount}</span>
                                             </td>
                                             <td className="px-2 py-2 text-center">
                                                 <div>
