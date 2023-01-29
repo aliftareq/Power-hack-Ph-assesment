@@ -33,7 +33,7 @@ const Login = () => {
                 console.log(user);
                 setLoginUserEmail(data.email)
                 setloginError('')
-                navigate(from, { replace: true })
+                setLoginUserEmail(result.user.email)
                 toast.success('Successfully logged in')
 
             })
@@ -43,22 +43,7 @@ const Login = () => {
             })
     }
 
-    // send user data to database
-    // const saveUserInDB = (name, email, role = 'Buyer') => {
-    //     const user = { name, email, role }
-    //     fetch(`https://truckbazar-server-side.vercel.app/users`, {
-    //         method: 'POST',
-    //         headers: {
-    //             'content-type': 'application/json'
-    //         },
-    //         body: JSON.stringify(user)
-    //     })
-    //         .then(res => res.json())
-    //         .then(data => {
-    //             console.log(data);
-    //             setLoginUserEmail(email)
-    //         })
-    // }
+
 
 
     //handler for social login
@@ -66,9 +51,8 @@ const Login = () => {
         LoginWithGoogle()
             .then(result => {
                 console.log(result.user);
-                //saveUserInDB(result.user.displayName, result.user.email)
+                setLoginUserEmail(result.user.email)
                 toast.success('successfully sign-In with google')
-                navigate(from, { replace: true })
             })
             .catch(err => {
                 console.log(err);
@@ -79,7 +63,7 @@ const Login = () => {
     useEffect(() => {
         //navigate
         if (token) {
-            //navigate(from, { replace: true })
+            navigate(from, { replace: true })
         }
     }, [token, from, navigate])
 

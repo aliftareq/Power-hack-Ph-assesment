@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -13,17 +13,12 @@ const Register = () => {
     const [createdUserEmail, setCreatedUserEmail] = useState('')
 
     //getting access token
-    //const [token] = useToken(createdUserEmail)
+    const [token] = useToken(createdUserEmail)
 
     //navigation
     const navigate = useNavigate()
     const location = useLocation()
     const from = location?.state?.from?.pathname || '/'
-
-    //navigating
-    // if (token) {
-    //     navigate(from, { replace: true })
-    // }
 
     //react form hook
     const { register, handleSubmit, formState: { errors } } = useForm()
@@ -47,6 +42,7 @@ const Register = () => {
                     createUser(data.email, data.password)
                         .then(result => {
                             console.log(result.user);
+                            setCreatedUserEmail(result.user.email)
                             const userInfo = {
                                 displayName: data.name,
                                 photoURL: imgdata.data.url
@@ -54,7 +50,6 @@ const Register = () => {
                             updateUser(userInfo)
                                 .then(() => {
                                     setSignUpError('')
-                                    //saveUserInDB(data.name, data.email, data.role)
                                     toast.success('user created succesfully')
                                     navigate(from, { replace: true })
                                 })
@@ -71,44 +66,29 @@ const Register = () => {
 
             })
 
-
-
     }
-
-    // send user data to database
-    // const saveUserInDB = (name, email, role = 'Buyer') => {
-    //     const user = { name, email, role }
-    //     fetch(`https://truckbazar-server-side.vercel.app/users`, {
-    //         method: 'POST',
-    //         headers: {
-    //             'content-type': 'application/json'
-    //         },
-    //         body: JSON.stringify(user)
-    //     })
-    //         .then(res => res.json())
-    //         .then(data => {
-    //             console.log(data);
-    //             setCreatedUserEmail(email)
-    //         })
-    // }
-
-
-
 
     //handler for social login
     const handleGoogleSignIn = () => {
         LoginWithGoogle()
             .then(result => {
                 console.log(result.user);
-                //saveUserInDB(result.user.displayName, result.user.email)
+                setCreatedUserEmail(result.user.email)
                 toast.success('successfully sign-In with google')
-                navigate(from, { replace: true })
             })
             .catch(err => {
                 console.log(err);
                 toast.error(err.message)
             })
     }
+
+    useEffect(() => {
+        //navigate
+        if (token) {
+            navigate(from, { replace: true })
+        }
+    }, [token, from, navigate])
+
     return (
         <section className='flex justify-center items-center'>
             <div className='w-72 lg:w-2/5 shadow-lg px-5 lg:px-10 py-5 rounded-lg my-10 bg-slate-900'>

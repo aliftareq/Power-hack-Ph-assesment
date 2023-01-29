@@ -6,6 +6,7 @@ import LoadingSpinner from '../Shared/LoadingSpinner';
 const BillingPage = () => {
 
     const [data, setdata] = useState([])
+    const [singlebill, setSinglebill] = useState({})
     const [page, setPage] = useState(0)
     const size = 10;
     const pages = Math.ceil(data.count / size);
@@ -28,7 +29,7 @@ const BillingPage = () => {
     }
 
     //handlers
-    const handleBooking = (e) => {
+    const handleBill = (e) => {
         e.preventDefault()
         const form = e.target
         const Full_Name = form.name.value
@@ -67,6 +68,43 @@ const BillingPage = () => {
 
         //reseting form and closing modal
         form.reset()
+    }
+
+    //for getting a single bill data
+    const handleUpdate = (id) => {
+        //console.log(id);
+
+        //getting a single data from server
+        fetch(`http://localhost:5000/bill?id=${id}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                setSinglebill(data)
+            })
+    }
+
+    //for updating bill
+    const handleUpdateBill = (e, id) => {
+        e.preventDefault()
+        console.log(id);
+    }
+
+    // for deleting bill
+    const handleDeleteBill = id => {
+        const ans = window.confirm('Are you Sure about to delete this bill?')
+        if (ans) {
+            fetch(`http://localhost:5000/delete-billing/${id}`, {
+                method: 'DELETE',
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.deletedCount > 0) {
+                        toast.warn('Removed from database and billing list')
+                    }
+                    refetch()
+                })
+        }
 
     }
 
@@ -99,7 +137,8 @@ const BillingPage = () => {
                 <div>
                     <label
                         className='p-3 rounded text-white bg-green-700 font-semibold'
-                        htmlFor="booking-modal"
+                        htmlFor="billing-modal"
+                        onClick={() => setSinglebill({})}
                     >
                         Add new bills
                     </label>
@@ -111,7 +150,9 @@ const BillingPage = () => {
                     <table className="w-4/5 mx-auto text-xs">
                         <thead className="rounded-t-lg dark:bg-gray-700">
                             <tr className="text-right">
-                                <th title="Ranking" className="p-2 text-left">Billing Id</th>
+                                <th title="Ranking" className="p-2 text-left">
+                                    {isLoading ? 'Generating id' : 'Billing Id'}
+                                </th>
                                 <th title="Team name" className="p-2 text-left">Full Name</th>
                                 <th title="Wins" className="p-2  text-left">Email</th>
                                 <th title="Losses" className="p-2 text-left">Phone</th>
@@ -141,11 +182,17 @@ const BillingPage = () => {
                                             </td>
                                             <td className="px-2 py-2 text-center">
                                                 <div>
-                                                    <label htmlFor="booking-modal" className='underline'>
+                                                    <label htmlFor="billingUpdate-modal"
+                                                        onClick={() => handleUpdate(bill._id)}
+                                                        className='underline'>
                                                         Edit
                                                     </label>
                                                     <span> || </span>
-                                                    <button className='underline'>Delete</button>
+                                                    <button
+                                                        onClick={() => handleDeleteBill(bill._id)}
+                                                        className='underline'>
+                                                        Delete
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>)
@@ -175,21 +222,43 @@ const BillingPage = () => {
                     }
                 </div>
             </div>
-            {/* booking modal  */}
+            {/* billing modal  */}
             <div>
-                <input type="checkbox" id="booking-modal" className="modal-toggle" />
+                <input type="checkbox" id="billing-modal" className="modal-toggle" />
                 <div className="modal">
                     <div className="modal-box relative">
-                        <label htmlFor="booking-modal" className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+                        <label htmlFor="billing-modal" className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
                         <h3 className="text-lg font-bold">Add Your billing Info</h3>
                         <div className=''>
-                            <form onSubmit={handleBooking} className='grid grid-cols-1 gap-3 mt-10' >
+                            <form onSubmit={handleBill} className='grid grid-cols-1 gap-3 mt-10' >
                                 <input name='name' type="text" placeholder="Full Name" className="input input-bordered w-full" />
                                 <input name='email' type="email" placeholder="Email" className="input input-bordered w-full" />
                                 <input name='phone' type="text" placeholder="Phone Number" className="input input-bordered w-full" required />
                                 <input name='amount' type="text" placeholder="Paid amount" className="input input-bordered w-full" required />
                                 <br />
-                                <input type="submit" value="Submit" className="btn btn-accent input w-full" />
+                                <input type="submit" value="Submit" className="btn bg-orange-400 input w-full" />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/* billing update modal  */}
+            <div>
+                <input type="checkbox" id="billingUpdate-modal" className="modal-toggle" />
+                <div className="modal">
+                    <div className="modal-box relative">
+                        <label htmlFor="billingUpdate-modal" className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+                        <h3 className="text-lg font-bold">Add Your billing Info</h3>
+                        <div className=''>
+                            <form onSubmit={() => handleUpdateBill(singlebill._id)} className='grid grid-cols-1 gap-3 mt-10' >
+                                <input name='name' type="text" placeholder="Full Name"
+                                    defaultValue={singlebill?.Full_Name} className="input input-bordered w-full" />
+                                <input name='email' type="email" placeholder="Email"
+                                    defaultValue={singlebill?.email} className="input input-bordered w-full" />
+                                <input name='phone' type="text" placeholder="Phone Number" defaultValue={singlebill?.Phone} className="input input-bordered w-full" required />
+                                <input name='amount' type="text" placeholder="Paid amount" defaultValue={singlebill?.paid_amount} className="input input-bordered w-full" required />
+                                <br />
+                                <input type="submit" value="Submit" className="btn bg-orange-400 input w-full" />
                             </form>
                         </div>
                     </div>
