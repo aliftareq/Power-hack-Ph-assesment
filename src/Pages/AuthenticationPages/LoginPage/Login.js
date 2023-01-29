@@ -33,8 +33,8 @@ const Login = () => {
                 console.log(user);
                 setLoginUserEmail(data.email)
                 setloginError('')
-                setLoginUserEmail(result.user.email)
                 toast.success('Successfully logged in')
+                setLoginUserEmail(result.user.email)
 
             })
             .catch(err => {
@@ -51,8 +51,8 @@ const Login = () => {
         LoginWithGoogle()
             .then(result => {
                 console.log(result.user);
-                setLoginUserEmail(result.user.email)
                 toast.success('successfully sign-In with google')
+                setLoginUserEmail(result.user.email)
             })
             .catch(err => {
                 console.log(err);

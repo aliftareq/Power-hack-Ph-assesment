@@ -13,9 +13,13 @@ const BillingPage = () => {
 
     //loading data using useQuery
     const { data: billList, isLoading, refetch } = useQuery({
-        queryKey: ['billList', page, data],
+        queryKey: ['billList', page, data, 'user-token'],
         queryFn: async () => {
-            const res = await fetch(`http://localhost:5000/billing-list?page=${page}`)
+            const res = await fetch(`http://localhost:5000/billing-list?page=${page}`, {
+                headers: {
+                    authorization: `bearer ${localStorage.getItem('Token')}`
+                }
+            })
             const data = await res.json()
             console.log(data);
             setdata(data)
@@ -49,7 +53,8 @@ const BillingPage = () => {
         fetch(`http://localhost:5000/add-billing`, {
             method: 'POST',
             headers: {
-                'content-type': 'application/json'
+                'content-type': 'application/json',
+                authorization: `bearer ${localStorage.getItem('Token')}`
             },
             body: JSON.stringify(bill)
         })
@@ -75,7 +80,11 @@ const BillingPage = () => {
         //console.log(id);
 
         //getting a single data from server
-        fetch(`http://localhost:5000/bill?id=${id}`)
+        fetch(`http://localhost:5000/bill?id=${id}`, {
+            headers: {
+                authorization: `bearer ${localStorage.getItem('Token')}`
+            }
+        })
             .then(res => res.json())
             .then(data => {
                 console.log(data)
@@ -95,6 +104,9 @@ const BillingPage = () => {
         if (ans) {
             fetch(`http://localhost:5000/delete-billing/${id}`, {
                 method: 'DELETE',
+                headers: {
+                    authorization: `bearer ${localStorage.getItem('Token')}`
+                }
             })
                 .then(res => res.json())
                 .then(data => {
