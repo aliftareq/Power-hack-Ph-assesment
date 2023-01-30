@@ -5,27 +5,29 @@ import LoadingSpinner from '../Shared/LoadingSpinner';
 
 const BillingPage = () => {
 
-    const [data, setdata] = useState([])
     const [singlebill, setSinglebill] = useState({})
     const [page, setPage] = useState(0)
     const size = 10;
-    const pages = Math.ceil(data.count / size);
+
+
 
     //loading data using useQuery
-    const { data: billList, isLoading, refetch } = useQuery({
-        queryKey: ['billList', page, data, 'user-token'],
+    const { data: datas, isLoading, refetch } = useQuery({
+        queryKey: ["datas", page],
         queryFn: async () => {
-            const res = await fetch(`http://localhost:5000/billing-list?page=${page}`, {
+            const res = await fetch(`https://power-hack-server-olive.vercel.app/billing-list?page=${page}`, {
                 headers: {
                     authorization: `bearer ${localStorage.getItem('Token')}`
                 }
             })
             const data = await res.json()
-            console.log(data);
-            setdata(data)
             return data
         }
     })
+
+    const pages = Math.ceil(datas?.count / size);
+    // console.log(datas);
+    // console.log(pages);
 
     //using loading
     if (isLoading) {
@@ -50,7 +52,7 @@ const BillingPage = () => {
         console.log(bill);
 
         //sending data to server
-        fetch(`http://localhost:5000/add-billing`, {
+        fetch(`https://power-hack-server-olive.vercel.app/add-billing`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -80,7 +82,7 @@ const BillingPage = () => {
         //console.log(id);
 
         //getting a single data from server
-        fetch(`http://localhost:5000/bill?id=${id}`, {
+        fetch(`https://power-hack-server-olive.vercel.app/bill?id=${id}`, {
             headers: {
                 authorization: `bearer ${localStorage.getItem('Token')}`
             }
@@ -93,16 +95,16 @@ const BillingPage = () => {
     }
 
     //for updating bill
-    const handleUpdateBill = (e, id) => {
+    const handleUpdateBill = (e) => {
         e.preventDefault()
-        console.log(id);
+        console.log(singlebill._id);
     }
 
     // for deleting bill
     const handleDeleteBill = id => {
         const ans = window.confirm('Are you Sure about to delete this bill?')
         if (ans) {
-            fetch(`http://localhost:5000/delete-billing/${id}`, {
+            fetch(`https://power-hack-server-olive.vercel.app/delete-billing/${id}`, {
                 method: 'DELETE',
                 headers: {
                     authorization: `bearer ${localStorage.getItem('Token')}`
@@ -174,40 +176,39 @@ const BillingPage = () => {
                         </thead>
                         <tbody>
                             {
-                                data.billList
-                                    .map(bill =>
-                                        <tr key={bill._id} className="text-right border-b border-opacity-20 ">
-                                            <td className="px-2 py-2 text-left">
-                                                <span>{bill._id}</span>
-                                            </td>
-                                            <td className="px-2 py-2 text-left">
-                                                <span>{bill.Full_Name}</span>
-                                            </td>
-                                            <td className="px-2 py-2 text-left">
-                                                <span>{bill.email}</span>
-                                            </td>
-                                            <td className="px-2 py-2 text-left">
-                                                <span>{bill.Phone}</span>
-                                            </td>
-                                            <td className="px-2 py-2 text-left">
-                                                <span>{bill.paid_amount}</span>
-                                            </td>
-                                            <td className="px-2 py-2 text-center">
-                                                <div>
-                                                    <label htmlFor="billingUpdate-modal"
-                                                        onClick={() => handleUpdate(bill._id)}
-                                                        className='underline'>
-                                                        Edit
-                                                    </label>
-                                                    <span> || </span>
-                                                    <button
-                                                        onClick={() => handleDeleteBill(bill._id)}
-                                                        className='underline'>
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>)
+                                datas?.billList?.map(bill =>
+                                    <tr key={bill._id} className="text-right border-b border-opacity-20 ">
+                                        <td className="px-2 py-2 text-left">
+                                            <span>{bill._id}</span>
+                                        </td>
+                                        <td className="px-2 py-2 text-left">
+                                            <span>{bill.Full_Name}</span>
+                                        </td>
+                                        <td className="px-2 py-2 text-left">
+                                            <span>{bill.email}</span>
+                                        </td>
+                                        <td className="px-2 py-2 text-left">
+                                            <span>{bill.Phone}</span>
+                                        </td>
+                                        <td className="px-2 py-2 text-left">
+                                            <span>{bill.paid_amount}</span>
+                                        </td>
+                                        <td className="px-2 py-2 text-center">
+                                            <div>
+                                                <label htmlFor="billingUpdate-modal"
+                                                    onClick={() => handleUpdate(bill._id)}
+                                                    className='underline'>
+                                                    Edit
+                                                </label>
+                                                <span> || </span>
+                                                <button
+                                                    onClick={() => handleDeleteBill(bill._id)}
+                                                    className='underline'>
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>)
                             }
                         </tbody>
                     </table>
@@ -220,7 +221,7 @@ const BillingPage = () => {
                         Your are in Page No. <span className='font-bold'>{page + 1}</span>
                     </p>
                     {
-                        [...Array(pages).keys()].map((num, idx) => <button
+                        [...Array(pages)?.keys()]?.map((num, idx) => <button
                             key={idx}
                             className={`p-3 rounded bg-green-300 mx-2 hover:bg-green-500 
                             ${page === num ? 'bg-yellow-400' : ''}`}
@@ -243,8 +244,8 @@ const BillingPage = () => {
                         <h3 className="text-lg font-bold">Add Your billing Info</h3>
                         <div className=''>
                             <form onSubmit={handleBill} className='grid grid-cols-1 gap-3 mt-10' >
-                                <input name='name' type="text" placeholder="Full Name" className="input input-bordered w-full" />
-                                <input name='email' type="email" placeholder="Email" className="input input-bordered w-full" />
+                                <input name='name' type="text" placeholder="Full Name" className="input input-bordered w-full" required />
+                                <input name='email' type="email" placeholder="Email" className="input input-bordered w-full" required />
                                 <input name='phone' type="text" placeholder="Phone Number" className="input input-bordered w-full" required />
                                 <input name='amount' type="text" placeholder="Paid amount" className="input input-bordered w-full" required />
                                 <br />
