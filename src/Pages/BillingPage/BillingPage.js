@@ -1,9 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { toast } from 'react-toastify';
+import { AuthContext } from '../../Contexts/AuthProvider';
 import LoadingSpinner from '../Shared/LoadingSpinner';
 
 const BillingPage = () => {
+
+    //context values
+    const { paid_Total, setPaid_Total } = useContext(AuthContext)
 
     const [singlebill, setSinglebill] = useState({})
     const [page, setPage] = useState(0)
@@ -21,13 +25,16 @@ const BillingPage = () => {
                 }
             })
             const data = await res.json()
+            const bills = data?.billList?.map(bill => parseInt(bill.paid_amount))
+            const Total_bill = bills.reduce((a, b) => a + b, 0);
+            setPaid_Total(Total_bill)
             return data
         }
     })
 
     const pages = Math.ceil(datas?.count / size);
-    // console.log(datas);
-    // console.log(pages);
+
+
 
     //using loading
     if (isLoading) {

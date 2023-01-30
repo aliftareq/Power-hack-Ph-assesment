@@ -8,7 +8,7 @@ export const NavBar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     //context values
-    const { user, logOut } = useContext(AuthContext)
+    const { user, logOut, paid_Total } = useContext(AuthContext)
 
     //navigation
     const navigate = useNavigate()
@@ -58,7 +58,7 @@ export const NavBar = () => {
                                         title="paid total"
                                         className="font-medium tracking-wide text-gray-100 transition-colors duration-200 hover:text-teal-400"
                                     >
-                                        Paid Total : 0
+                                        Paid Total : {paid_Total}
                                     </Link>
                                 </li>
                                 :

@@ -13,6 +13,7 @@ const AuthProvider = ({ children }) => {
     //states
     const [user, setUser] = useState(null)
     const [loading, setloading] = useState(true)
+    const [paid_Total, setPaid_Total] = useState(5)
 
     //handlers
     const createUser = (email, password) => {
@@ -57,6 +58,8 @@ const AuthProvider = ({ children }) => {
         logOut,
         loading,
         LoginWithGoogle,
+        paid_Total,
+        setPaid_Total
     }
     return (
         <AuthContext.Provider value={AuthInfo}>
